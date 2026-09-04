@@ -1,0 +1,403 @@
+<title>EPFO Revamp Scorecard</title>
+<style>
+  :root{
+    --bg:#f5f8f6; --surface:#ffffff; --ink:#1c2420; --mut:#5c6863; --line:#e1e8e4;
+    --band:#1f2b26; --band-ink:#eef3f0;
+    --pro:#147a4d; --pro-bg:#eaf6ef; --pro-line:#c9e8d6;
+    --con:#a4451f; --con-bg:#fbeee6; --con-line:#f0d3c2;
+    --neu:#5f6d67; --neu-bg:#eef1ef; --neu-line:#dde3e0;
+    --info:#1c5f8a; --info-bg:#eaf3fa; --info-line:#c8e0f0;
+    --accent:#0e6f5c;
+    --shadow:0 1px 2px rgba(20,36,32,.06), 0 8px 24px rgba(20,36,32,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121613; --surface:#191f1c; --ink:#eaf0ec; --mut:#9aa8a1; --line:#293530;
+      --band:#0d130f; --band-ink:#dcecE4;
+      --pro:#4fd394; --pro-bg:#132a20; --pro-line:#1f4a37;
+      --con:#f0906a; --con-bg:#2c1a12; --con-line:#4a2c1c;
+      --neu:#a3b0a9; --neu-bg:#1c2320; --neu-line:#2c3733;
+      --info:#7ec8f0; --info-bg:#12232f; --info-line:#204059;
+      --accent:#57c9ac;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121613; --surface:#191f1c; --ink:#eaf0ec; --mut:#9aa8a1; --line:#293530;
+    --band:#0d130f; --band-ink:#dcecE4;
+    --pro:#4fd394; --pro-bg:#132a20; --pro-line:#1f4a37;
+    --con:#f0906a; --con-bg:#2c1a12; --con-line:#4a2c1c;
+    --neu:#a3b0a9; --neu-bg:#1c2320; --neu-line:#2c3733;
+    --info:#7ec8f0; --info-bg:#12232f; --info-line:#204059;
+    --accent:#57c9ac;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1240px; margin:0 auto; padding:56px 28px 100px;}
+  .eyebrow{
+    font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:14px;
+  }
+  h1{font-size:34px; font-weight:800; letter-spacing:-.02em; line-height:1.15; margin:0 0 14px; text-wrap:balance;}
+  .lede{font-size:16.5px; color:var(--mut); max-width:74ch; margin:0 0 8px;}
+  .lede + .lede{margin-top:10px;}
+  .scope-note{
+    display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:8px 14px;
+    background:var(--surface); border:1px solid var(--line); border-radius:999px;
+    font-size:12.5px; color:var(--mut); box-shadow:var(--shadow);
+  }
+  .scope-note b{color:var(--ink);}
+
+  /* ---- sitewide dimensions ---- */
+  .section-title{
+    font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--mut); margin:64px 0 18px; display:flex; align-items:center; gap:12px;
+  }
+  .section-title::after{content:""; flex:1; height:1px; background:var(--line);}
+  .dim-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:900px){ .dim-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:640px){ .dim-grid{grid-template-columns:1fr;} }
+  .dim-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:18px 18px 20px; box-shadow:var(--shadow);
+  }
+  .dim-card h3{font-size:14.5px; margin:0 0 12px; font-weight:700;}
+  .dim-row{display:flex; gap:10px; font-size:13px; margin-bottom:8px; align-items:flex-start;}
+  .dim-row:last-child{margin-bottom:0;}
+  .dim-tag{
+    flex:0 0 auto; font-size:10.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    padding:2px 7px; border-radius:5px; margin-top:1px;
+  }
+  .dim-tag.cur{background:var(--neu-bg); color:var(--neu); border:1px solid var(--neu-line);}
+  .dim-tag.rev{background:var(--pro-bg); color:var(--pro); border:1px solid var(--pro-line);}
+  .dim-row p{margin:0; color:var(--mut);}
+
+  /* ---- table ---- */
+  .table-scroll{overflow-x:auto; border-radius:16px; box-shadow:var(--shadow); border:1px solid var(--line);}
+  table{border-collapse:collapse; width:100%; min-width:1280px; background:var(--surface);}
+  thead th{
+    position:sticky; top:0; z-index:2; background:var(--band); color:var(--band-ink);
+    font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    padding:13px 16px; text-align:left; border-bottom:1px solid var(--band);
+  }
+  thead th:first-child{border-top-left-radius:16px;}
+  thead th:last-child{border-top-right-radius:16px;}
+  th.col-screen, td.col-screen{width:170px; min-width:170px;}
+  th.col-current, td.col-current{width:230px; min-width:210px;}
+  td{padding:14px 16px; border-bottom:1px solid var(--line); font-size:13.5px; vertical-align:top;}
+  tbody tr:last-child td{border-bottom:0;}
+  td.col-screen{
+    position:sticky; left:0; background:var(--surface); font-weight:700; color:var(--ink);
+    box-shadow:1px 0 0 var(--line);
+  }
+  td.col-current{color:var(--mut);}
+  td.pro{background:var(--pro-bg); color:var(--ink); border-left:1px solid var(--pro-line);}
+  td.con{background:var(--con-bg); color:var(--ink); border-left:1px solid var(--con-line);}
+  td.cosmetic-pro{background:var(--neu-bg); color:var(--ink); border-left:1px solid var(--neu-line);}
+  td.improve{background:var(--info-bg); color:var(--ink); border-left:1px solid var(--info-line);}
+  .cell-label{
+    display:block; font-size:10px; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+    margin-bottom:5px;
+  }
+  td.pro .cell-label{color:var(--pro);}
+  td.con .cell-label{color:var(--con);}
+  td.cosmetic-pro .cell-label{color:var(--neu);}
+  td.improve .cell-label{color:var(--info);}
+  tr.group-row td{
+    background:var(--band); color:var(--band-ink); font-size:11.5px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; padding:9px 16px; border-bottom:0;
+    position:static; box-shadow:none;
+  }
+  tr.group-row td span{opacity:.68; text-transform:none; font-weight:500; letter-spacing:normal; margin-left:10px; font-size:11.5px;}
+
+  /* ---- closing notes ---- */
+  .notes{
+    margin-top:56px; background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    padding:26px 28px; box-shadow:var(--shadow);
+  }
+  .notes h2{font-size:17px; margin:0 0 14px;}
+  .notes ul{margin:0; padding-left:20px; color:var(--mut); font-size:13.5px;}
+  .notes li{margin-bottom:9px;}
+  .notes li:last-child{margin-bottom:0;}
+  .notes li b{color:var(--ink);}
+  footer{margin-top:40px; font-size:12px; color:var(--mut); text-align:center;}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">EPFO Design Study &middot; Comparative Analysis</div>
+  <h1>Current Portal vs. Revamped Portal, screen by screen</h1>
+  <p class="lede">Every pro and con below is graded against the same live prototype, not a hypothetical - the Current Portal column is a byte-faithful replica of the real EPFO Member e-Sewa site, and the Revamped columns describe exactly what exists in the redesign today, including its gaps.</p>
+  <p class="lede">Seventeen of the twenty-five screens carry real functional or informational differences. The other eight are visual-language redesigns only - that distinction is called out plainly rather than papered over.</p>
+  <div class="scope-note">&#9432;&nbsp; <b>Reading the columns:</b> Pro = a real improvement demonstrated in the prototype. Con = a real, verified gap or trade-off - not a hedge. Improvement = the concrete next step that would close that specific gap, not a vague aspiration.</div>
+
+  <div class="section-title">Sitewide, not screen-specific</div>
+  <div class="dim-grid">
+    <div class="dim-card">
+      <h3>Navigation</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>Top horizontal bar, hover dropdowns, no persistent wayfinding.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>Persistent left sidebar, accordion groups, one open at a time, keyboard and screen-reader tested.</p></div>
+    </div>
+    <div class="dim-card">
+      <h3>Landing page after login</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>Static profile printout - identity, KYC status, employment record.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>Task-first dashboard (open issues, balances) with Profile split into its own screen.</p></div>
+    </div>
+    <div class="dim-card">
+      <h3>Motion</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>None - every navigation is a hard cut, matching the real site.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>Cross-fade transitions; dashboard action cards morph into their claim detail panel.</p></div>
+    </div>
+    <div class="dim-card">
+      <h3>Accessibility baseline</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>Replica of the real site's actual gaps - small tap targets, no focus management.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>WCAG-AA contrast, 44px touch targets, route-change focus announcement, focus-trapped dialog.</p></div>
+    </div>
+    <div class="dim-card">
+      <h3>Sign-out &amp; identity</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>Name and Sign Out live only in the horizontal nav bar.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>Also pinned to the masthead, same line as the org title - visible regardless of scroll or sidebar state.</p></div>
+    </div>
+    <div class="dim-card">
+      <h3>Visual language</h3>
+      <div class="dim-row"><span class="dim-tag cur">Current</span><p>Sharp corners, solid teal bars, dense - matches the real government portal.</p></div>
+      <div class="dim-row"><span class="dim-tag rev">Revamped</span><p>Rounded cards, white panel headers, more whitespace - a modern account-UI language.</p></div>
+    </div>
+  </div>
+
+  <div class="section-title">Screen by screen</div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-screen" scope="col">Screen</th>
+          <th class="col-current" scope="col">What Current Portal shows</th>
+          <th scope="col">Revamped - Pro</th>
+          <th scope="col">Revamped - Con</th>
+          <th scope="col">What would close the gap</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="group-row"><td colspan="5">Core narrative <span> -  where the redesign's argument actually lives</span></td></tr>
+
+        <tr>
+          <td class="col-screen">Login</td>
+          <td class="col-current">Full sign-in page, notices, quick links for pre-login flows.</td>
+          <td class="cosmetic-pro"><span class="cell-label">By design</span>Deliberately kept visually identical to Current, down to colour and spacing - the one screen every visitor hits before any redesign argument has been made.</td>
+          <td class="con"><span class="cell-label">Con</span>Zero differentiation here on purpose - a reviewer judging only this screen sees no evidence a redesign happened at all.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the screen itself stays untouched; a one-time, dismissible "What's new in the redesign" banner now appears on Home right after login (dismissal remembered for the session), so the case is made without breaking the visual-replica intent.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Home / Dashboard</td>
+          <td class="col-current">Doubles as the profile page - identity, KYC status, employment record, one static rule-based alert.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Task-first dashboard: every open issue (rejected claim, stalled claim, unsigned nomination, a balance untransferred since 2019) plus the contribution-gap alert now live in one prioritized "Needs attention" feed, ranked by urgency, with the resolved alert's audit trail tucked behind a "View timeline" disclosure instead of sitting always-on as a second surface. The whole feed can also be collapsed with the same accordion pattern as the sidebar nav groups (rotating caret, animated grid-rows collapse), re-expanding automatically whenever Home is reopened so a dismissed feed can't quietly hide a new issue. PF and Pension balances are masked behind asterisks by default, with a "Show balances" toggle to reveal them, so a shoulder-surfing risk on a shared or public screen isn't always-on the way it is today. Profile summary now sits above Needs attention.</td>
+          <td class="con"><span class="cell-label">Con</span>The contribution-gap alert is still illustrative demo data - what shows as "auto-resolved" hasn't been demonstrated against a real ECR feed, so the dashboard's proactive-detection claim is unproven against live employer data.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>The surface-merge is done; the remaining gap is real: connect the Alert Centre to EPFO's actual monthly ECR feed so contribution gaps and blank exit dates are detected from live data, not an invented timeline, before this is shown to a real member.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Profile</td>
+          <td class="col-current">No separate concept - this is what Home already shows.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Splitting identity/KYC/employment out of the dashboard keeps Home focused on action, not record-keeping, and a compact Profile summary card on Home (name, UAN, a live "X of 4 verified" KYC count) now links through to the full screen, so the first-glance muscle memory isn't lost. The full screen's own KYC Summary card was previously static and out of sync with reality (Bank Account always showed a hardcoded green VERIFIED, and the Father's Name row was missing entirely) - both now read live off the same KYC state Home does, so re-verifying on the KYC screen updates Home and Profile together instead of only one of them.</td>
+          <td class="con"><span class="cell-label">Con</span>The KYC count still tops out at 3 of 4 by design (the member's own PAN-name mismatch is never wired to a fix); the note under the count now explains that, but the PAN fix itself remains off-portal and unmodeled.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: a live one-line note under the Home summary card lists exactly which items are open and says the PAN name fix happens at the PAN portal, not here, so "3 of 4" no longer reads as an unresolved bug.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">KYC</td>
+          <td class="col-current">Aadhaar / PAN / Bank table with plain VERIFIED or UNVERIFIED pills - no explanation of what a mismatch means.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Arguably the highest-value screen in the redesign: names the exact root cause (a seeded bank name the portal marks verified today, caught only by exact-match scrutiny at claim time), replaces the falsely reassuring "VERIFIED" bank pill with "FAILS CLAIM SCRUTINY," and now genuinely resolves both defects it surfaces - bank and father's name each move through a pending state to VERIFIED and correct the name on record, independently of each other. The bank fix now models the real re-seed step from the fix-guide: a form asking for the corrected account holder name plus a cancelled cheque or passbook upload, with an exact-match check that rejects any name not matching Aadhaar letter for letter, teaching the exact-match rule at the moment of entry instead of asserting it in copy. The PAN-side father's-name fix stays a one-step re-verify ("I've corrected this at the PAN portal"), matching the guide's route where the correction itself happens at NSDL, not on this portal. Claim Filing's "Fix KYC first" path also detects whichever field just cleared and stops citing it, closing the loop end to end. The father's-name check itself is new: no KYC screen, current or redesigned, has ever surfaced it before, added from real member complaints (Reddit, X), not invented for the study.</td>
+          <td class="con"><span class="cell-label">Con</span>The member-side routing is checked against a practitioner fix-guide (kustodian.life, 2025, part of this study's research base): bank and PAN corrections are member-alone, and the employer gate applies only when EPFO's own master record is wrong, which is the Joint Declaration path Modify Basic Details already models. That source is a guide, not an EPFO circular. The Aadhaar-side gate, by contrast, is now anchored: EPFO's circular of 13 August 2025 (reported via press; primary text still to be fetched) requires an exact match of name, gender and date of birth for direct Aadhaar seeding and routes any mismatch through the overhauled Joint Declaration path. The bank- and PAN-side routing remains practitioner-tier.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Partly done: the Aadhaar seeding and JD gate is anchored to the EPFO circular of 13 August 2025 (fetching the primary text would complete it). Still open: a circular-grade source for the bank-name and PAN-side routing. The re-seed step (corrected details plus document upload) is now modelled.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Claim Filing</td>
+          <td class="col-current">Two-step form that submits regardless of any KYC mismatch, exactly like the real site.</td>
+          <td class="pro"><span class="cell-label">Pro</span>A pre-flight completeness check catches both modeled KYC defects (bank-name and father's-name mismatch) before submission, citing the office's own 84% historical rejection rate - and now genuinely closes the loop: "Fix KYC first" detects whichever field is still open and the warning clears automatically once it's fixed, while "File anyway" names only the defect still on file rather than a static claim.</td>
+          <td class="con"><span class="cell-label">Con</span>The completeness check is scoped to exactly the two defects this persona models. Other real defect types surfaced by the same research (PAN not linked, DOE missing, old UAN issues) aren't checked here.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the pre-flight now runs off a reusable KYC-field check registry (one entry per defect drives the list item, the warning and the file-anyway text), so adding a newly modeled defect is one registry entry plus its list item, not screen-logic surgery.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Track Claim Status</td>
+          <td class="col-current">A list plus one opaque remark for the rejected claim: "CLAIM REJECTED DUE TO :- 1) NAME NOT MATCHED WITH BANK RECORDS 2) OTHERS."</td>
+          <td class="pro"><span class="cell-label">Pro</span>Does the most work of any screen in the study: a field-by-field rejection decoder, an intent-gated dispute path with a pre-filled EPFiGMS draft, a "verified closure" check that cross-references EPFO's own payment record when a member reports non-payment, and a stalled-claim view against the office's real service standard, now shown as the actual three-tier clock (7 working days aspirational, 20 days with Para 72(7)'s personal-liability and 12% penal-interest consequence, 30 days statutory) instead of one flat number. The OTHERS code now decodes to a real, independently reported defect (a father's-name mismatch on PAN), and a top-of-screen note flags a real, reported false-positive failure mode, both grounded in actual member complaints. Claims now open one at a time as a proper accordion (active row highlighted, View becomes Hide, closing one before opening another), and every illustrative figure on the screen, plus its duplicate on Claim Filing, carries its own inline "(illustrative)" tag rather than one disclaimer stated once. Its per-claim dispute path now also cross-links, in one step, into the standalone Grievance screen with the composer pre-filled from that claim (claim ID, rejection codes, filed and rejected dates), rather than holding a parallel grievance surface of its own.</td>
+          <td class="con"><span class="cell-label">Con</span>The rejected claim's panel is leaner now that the comparison tables sit behind a disclosure, but it still stacks a decode, a four-item cure list and a collapsed dispute path in one panel.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the two name-comparison tables now sit behind a "Show the evidence" disclosure, the same pattern as the dispute block, so an opened claim leads with the decode and cure path instead of two tables.</td>
+        </tr>
+
+
+        <tr>
+          <td class="col-screen">Grievance Redressal</td>
+          <td class="col-current">No in-portal grievance flow at all; on the real site grievance redressal lives on a separate system (EPFiGMS) the member has to find and navigate on their own.</td>
+          <td class="pro"><span class="cell-label">Pro</span>A first-class, trackable grievance screen for something that today lives only on a separate portal. A plain-language symptom picker routes each problem deterministically to the right EPFO office and section (no adaptive scoring, no raw department tree); a structured composer captures what happened, the rule or entitlement that applies, and the outcome sought, with a completeness-and-evidence check that blocks submit with a specific correction rather than a generic error. The filed grievance shows a live 21-day reply clock and a status timeline, and once the clock lapses a pre-written, reference-numbered reminder unlocks. On closure it asks the member plainly whether it was actually resolved (Yes / No / Partly); a No or Partly answer reveals a pre-filled appeal (original grievance and closure note verbatim, rule cited, outcome sought) with the 30-day appeal clock and an escalation ladder - EPFiGMS, then CPGRAMS with its 21-day norm, then RTI or the relevant ombudsman - tilted toward a forum independent of the closing office, so a false closure surfaces the appeal path instead of being passively accepted. The ladder now also names EPFO's own internal escalation (7 working days unredressed routes to the Head Office Public Grievance Officer, per the Citizens' Charter) and its 24x7 toll-free helpline, so the member sees who is accountable even before appealing. Track Claim Status's rejected and stalled claims cross-link straight into it, pre-filled.</td>
+          <td class="con"><span class="cell-label">Con</span>Nothing is actually filed: the reference number, the office routing, the closure note and the escalation forums are illustrative demo state, not a live EPFiGMS, CPGRAMS or RTI submission. The 21-day reply norm and the 30-day appeal window themselves are now anchored to the DARPG guidelines (Aug 2024) and the CPGRAMS portal FAQ, but the clock still runs from a fixed illustrative "today" that a demo control advances, not the real date, and the routing table maps five symptoms to one office's sections, where a real deployment spans many offices and grievance categories.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Wire the flow to the real EPFiGMS and CPGRAMS systems so a submission, its reference number and its reply clock reflect an actual filing, and broaden the symptom-to-office routing to EPFO's full office and category list. The 21-day reply norm and the 30-day appeal window are now anchored (DARPG Aug 2024 guidelines; CPGRAMS FAQ), and the screen states EPFO's own Citizens' Charter commitment of 7 working days; what remains is anchoring the escalation ladder's RTI and ombudsman rungs to their governing rules.</td>
+        </tr>
+
+        <tr class="group-row"><td colspan="5">Account &amp; record screens <span> -  half the section now carries real follow-through</span></td></tr>
+
+        <tr>
+          <td class="col-screen">Service History</td>
+          <td class="col-current">Two-employer job history table.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Cleaner card styling, easier to scan than the dense bordered table.</td>
+          <td class="con"><span class="cell-label">Con</span>No functional or informational change at all - doesn't address anything a member actually struggles with here.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Genuinely low priority - this screen has no known member pain point. Leave it cosmetic-only rather than inventing a change; revisit only if research surfaces an actual complaint about it.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Passbook</td>
+          <td class="col-current">Monthly EE / ER / pension contribution table and balances.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Adds a Member ID filter and a Financial Year filter together, since this persona genuinely has two PF accounts under one UAN (the current BLUEKITE account and an untransferred TECHNOVA account from 2015-2019) and each spans several real financial years. The FY list is generated from the same DOJ-DOE dates Service History already shows, every year has its own full month-by-month rows, and switching either filter swaps the whole passbook, balances, and note, instead of the current portal only ever showing one truncated stretch of the active account.</td>
+          <td class="con"><span class="cell-label">Con</span>Contribution watch now sticks to the passbook-specific reading (the table simply stopping at FEB-2026) and points to Home for the chasing, fixing the earlier overlap. Closing and pension balances for years before the current one are scaled estimates labelled illustrative, not itemised interest; and the account filter still only covers the two accounts this persona happens to have.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done on the trim: Contribution Watch now reads the passbook itself (an absent row is the gap) and defers the chasing to Home. Also checked: the Member ID and Financial Year data model is already keyed generically (both persona accounts share one shape, no per-member logic in the render functions), so it scales past this one persona without further work.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">UAN Card</td>
+          <td class="col-current">Digital ID card mock-up with a Download PDF action.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Rounded card styling reads closer to a real digital wallet card.</td>
+          <td class="con"><span class="cell-label">Con</span>No functional difference; Download PDF is a non-functional demo stub in both versions.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority for the visual redesign itself; if this screen is ever prioritized, the real fix is wiring Download PDF to a genuinely generated file, since that stub is equally unfinished in both versions.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Modify Basic Details</td>
+          <td class="col-current">Three-field Aadhaar-match table, "nothing to change" state.</td>
+          <td class="pro"><span class="cell-label">Pro</span>A "Simulate a Date of Birth mismatch" demo now walks through the actual Joint Declaration routing end to end: the field flips to MISMATCH and a status timeline shows the request going to the employer for JD approval, then to the field office, the real EPFO mechanism this screen exists to explain.</td>
+          <td class="con"><span class="cell-label">Con</span>The simulation still demonstrates one field, and now three outcomes (routed, approved end to end, or stalled); only the rejected JD branch remains unmodeled.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done for approval and stall: "Advance: employer approves" completes the timeline end to end, and "Advance: employer hasn't acted" shows the stalled outcome, matching the stalled-claim pattern on Track Claim Status. Still open: a rejected JD branch (employer disputes the change).</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Contact Details</td>
+          <td class="col-current">Registered mobile and email, OTP-gated change buttons.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Visual redesign only, otherwise identical.</td>
+          <td class="con"><span class="cell-label">Con</span>No functional or informational improvement.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority; the OTP-gated change flow already works the same in both versions. Worth revisiting only if the Alert Centre pattern ever needs to flag a stale or unverified contact detail.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">E-Nomination</td>
+          <td class="col-current">Family declaration table; nomination saved but never e-Signed, modeled identically in both versions.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Adds an in-screen banner mirroring the Home dashboard's proactive nudge (E-Nomination saved but not e-Signed), with a Complete e-Sign button that scrolls to and focuses the actual e-Sign button below it, so a member who reaches this screen without going through Home still sees the same prompt.</td>
+          <td class="con"><span class="cell-label">Con</span>Nothing left to fix here: the banner's button now triggers e-Sign directly, scrolling to and firing the same action the real button would.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the banner triggers e-Sign directly (the real e-Sign action is already a demo stub in both versions, so nothing more was needed to wire this up).</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Mark Exit</td>
+          <td class="col-current">Exit form plus a rule note: self-marking is only allowed after two months without contribution.</td>
+          <td class="pro"><span class="cell-label">Pro</span>The exact eligible date (20-05-2026, two months after the last credit) and the employer's actual update date (25-05-2026) are now shown directly on this screen, not just described as a concept - a member who lands on Mark Exit without going through Home first gets the same benefit.</td>
+          <td class="con"><span class="cell-label">Con</span>Both employment notes are this persona's fixed data, not computed from a live record; a third employment would need its own hand-written variant.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the tie-in panel is gated on the Select Employment dropdown; TECHNOVA now shows its own accurate note (exit already recorded 30-04-2019; the open issue is the untransferred balance, with a jump to Transfer Request) instead of BLUEKITE's story.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Change Password</td>
+          <td class="col-current">Standard three-field password form.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Visual redesign only.</td>
+          <td class="con"><span class="cell-label">Con</span>No functional change.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority; a password form has little room for a functional differentiator beyond the visual redesign already applied here.</td>
+        </tr>
+
+        <tr class="group-row"><td colspan="5">Transfer &amp; compliance <span> -  Transfer now carries its Home alert in-screen; Annexure K stays visual-only</span></td></tr>
+
+        <tr>
+          <td class="col-screen">Transfer Request</td>
+          <td class="col-current">Table of untransferred previous accounts, OTP-gated submit.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Mirrors the Home dashboard's alert in-screen: a banner flags the seven-year untransferred Technova balance, and its "Select the account" action ticks and focuses the transfer row, so a member who lands here directly gets the same prompt as one who came through Home (the E-Nomination pattern).</td>
+          <td class="con"><span class="cell-label">Con</span>The banner's action selects the account, but submission is still a demo dead end: no transfer is actually filed, in either version.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: the in-screen banner is live. The remaining gap is the transfer filing itself, which needs a real submission to close.</td>
+        </tr>
+
+        <tr>
+          <td class="col-screen">Annexure K</td>
+          <td class="col-current">Genuine empty state: no completed transfer, nothing to display.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Visual redesign only; the empty-state copy is already honest in both versions.</td>
+          <td class="con"><span class="cell-label">Con</span>No functional change.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority; the empty state is already honest and correct, so there's nothing here to fix beyond the visual redesign already applied.</td>
+        </tr>
+
+        <tr class="group-row"><td colspan="5">Pre-login utility screens <span> -  most now carry a real change (error prevention or a moved-to-UMANG notice); two stay identical forms</span></td></tr>
+
+        <tr>
+          <td class="col-screen">Forgot Password</td>
+          <td class="col-current">Standard reset form.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Submit now validates the UAN field is filled, then reaches a believable confirmation ("OTP sent to your registered mobile"), consistent with how the rest of the prototype handles demo actions, instead of leaving the button entirely inert.</td>
+          <td class="con"><span class="cell-label">Con</span>The OTP is not real (any 6 digits pass) and nothing is stored, so the completed flow is a believable simulation of a reset, not an actual one.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: OTP entry plus new-password fields now complete the flow end to end (demo OTP, passwords must match, nothing stored).</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Activate UAN</td>
+          <td class="col-current">Standard activation form with Aadhaar OTP consent.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Adds the one fact the form no longer tells: on the live portal, UAN activation has been discontinued and moved to the UMANG app with Aadhaar Face Authentication (login-page notice, verified 02-09-2026). The Revamped screen says so in a banner and keeps the old form for reference, so the redesign points to where the service actually lives instead of demoing a retired flow.</td>
+          <td class="con"><span class="cell-label">Con</span>The banner is informational only: the retired form still renders beneath it, and the prototype cannot hand off into UMANG's Face Authentication flow, so the member is told where to go but not taken there.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Replace the retired form with a proper hand-off card (deep link or QR to UMANG plus what to have ready), the portal-linking guidance-card pattern planned for the citizen-side build.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Track Application Status</td>
+          <td class="col-current">Pension-on-higher-wages application lookup form.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Search now returns a fictional pending application and decodes its raw status ("RC VERIFIED - DEFICIT PAYMENT ADVICE ISSUED - AWAITING REMITTANCE") into plain language, explaining EPFO's real verify-then-pay-deficit process for the higher-wages pension option instead of a bare code.</td>
+          <td class="con"><span class="cell-label">Con</span>Three statuses are now modeled (pending-awaiting-payment, rejected-for-missing-employer-wages, under-RC-verification); other real branches remain unmodeled, and all three decodes are fixed demo data, not a live lookup.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done: a cycling toggle shows a rejected application (employer did not submit wage details) and an under-RC-verification application (nothing to act on yet), each with its own plain-language decode. Still open: other real status branches beyond these three.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Know Your UAN</td>
+          <td class="col-current">UAN recovery form using basic details.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Visual redesign only.</td>
+          <td class="con"><span class="cell-label">Con</span>No demonstrated difference from Current.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority; worth revisiting only if a real failure-rate signal shows members frequently can't recover their UAN with basic details alone.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Direct UAN Allotment</td>
+          <td class="col-current">Aadhaar-based self-generated UAN form.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Same fix as Activate UAN: a banner states that direct UAN allotment has been discontinued on the live portal and moved to the UMANG app with Aadhaar Face Authentication (login-page notice, verified 02-09-2026), keeping the old form for reference instead of demoing a retired flow.</td>
+          <td class="con"><span class="cell-label">Con</span>Informational only: no real hand-off into UMANG, and the Aadhaar OTP flow the old form modeled remains the actual friction point, now living in UMANG rather than this portal.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Replace the retired form with a hand-off card (deep link or QR to UMANG plus what to have ready), the same portal-linking guidance-card pattern as Activate UAN.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">UAN for Existing PF</td>
+          <td class="col-current">UAN allotment for an already-active PF account.</td>
+          <td class="cosmetic-pro"><span class="cell-label">Cosmetic</span>Visual redesign only.</td>
+          <td class="con"><span class="cell-label">Con</span>No demonstrated difference from Current.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Low priority; this form's main risk is duplicate-UAN errors, which would need real validation logic to address, not a visual redesign.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Death Claim &middot; PF</td>
+          <td class="col-current">Nominee filing form for PF and EDLI.</td>
+          <td class="pro"><span class="cell-label">Pro</span>Adds a plain-language "before you start" panel (who can file, what a legal-heir case needs, what documents to have ready) and real error prevention on Submit: UAN, Aadhaar, and mobile format checks, plus a calendar-valid, not-future date of death, each with a specific inline correction instead of a single generic block.</td>
+          <td class="con"><span class="cell-label">Con</span>Format checks stop at syntax; nothing here confirms the UAN, Aadhaar, or date actually match EPFO's or UIDAI's records, since this prototype has no backend to check against.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Real UAN/Aadhaar lookups would upgrade this from format validation to genuine data verification.</td>
+        </tr>
+        <tr>
+          <td class="col-screen">Death Claim &middot; Pension</td>
+          <td class="col-current">Family/nominee pension filing form (Form-10D).</td>
+          <td class="pro"><span class="cell-label">Pro</span>Same treatment as the PF death claim: a plain-language panel explaining who typically receives family pension under EPS-95, plus format checks and a not-future date-of-death check on Submit, each with a specific inline correction, and now a soft shape check on the UAN-or-PPO field (a non-conforming entry warns once and passes on re-submit).</td>
+          <td class="con"><span class="cell-label">Con</span>The UAN-or-PPO check is deliberately a soft warning, not a hard block: the 12-character alphanumeric shape is confirmed (EPFO's DigiLocker SOP example, GRVSP0081010), but the segment semantics are practitioner-tier, so a hard validator could still false-reject a real PPO.</td>
+          <td class="improve"><span class="cell-label">Improvement</span>Done as a soft check: the format is confirmed and a non-conforming entry warns once, then passes on re-submit. Upgrade to a hard validation only after the segment semantics (office code, year, sequence, check digit) are verified against real EPS-95 PPOs.</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="notes">
+    <h2>Reading this honestly</h2>
+    <ul>
+      <li><b>17 of 25 screens carry real weight.</b> Home, Profile, KYC, Claim Filing, Track Claim Status, Grievance Redressal, Passbook, Modify Basic Details, Mark Exit, Transfer Request, Track Application Status, Forgot Password, Activate UAN, Direct UAN Allotment, both Death Claim forms (PF and Pension), and E-Nomination change what the member can see or do. The other 8 change only how things look.</li>
+      <li><b>The illustrative statistics are a real dependency.</b> The 84% rejection rate and the 34% dispute-reversal rate are invented for this study, explicitly labelled illustrative, and consistent with each other - but the entire persuasive weight of Claim Filing and Track Claim Status rests on real EPFO data eventually matching that shape.</li>
+      <li><b>Most "fixes" that could be demonstrated in the browser now are.</b> KYC's re-verify actions, Claim Filing's "Fix KYC first" detection, Passbook's Member ID and Financial Year filters, Modify Basic Details' Joint Declaration simulation, Track Application Status's status decoder, Forgot Password's confirmation, the Grievance screen's symptom routing, 21-day reply clock, lapsed-clock reminder, verified-closure question and pre-filled appeal, and both Death Claim forms' validation all genuinely change state end to end, verified in the browser. What's still a promise: the false-positive risk flagged on Track Claim Status is explicitly not something this study can fix, since closing it would require a real backend to connect to; and the Grievance flow files nothing for real (no live EPFiGMS, CPGRAMS or RTI submission), for the same reason.</li>
+      <li><b>The cosmetic-only screens aren't a failure of scope - they're evidence of consistency.</b> A redesign that only touched the screens with a story to tell would look patched together. Applying one visual language everywhere, even where nothing else changed, is what makes Home, KYC, and Track read as one coherent product instead of a demo bolted onto the old site.</li>
+    </ul>
+  </div>
+
+  <footer>Unofficial design study &middot; not affiliated with EPFO or the Government of India &middot; fictional data throughout</footer>
+</div>

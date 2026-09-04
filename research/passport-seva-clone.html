@@ -1,0 +1,606 @@
+<title>Passport Seva App Clone</title>
+<style>
+  :root {
+    --navy: #1a2a6c;
+    --navy-deep: #14205a;
+    --maroon: #7a1518;
+    --saffron: #f59015;
+    --saffron-soft: #fdf0dc;
+    --accent-name: #c0392b;
+    --label-blue: #2456c4;
+    --page: #e9edf3;
+    --card: #ffffff;
+    --ink: #1e2530;
+    --ink-soft: #5a6472;
+    --ink-faint: #8b94a3;
+    --line: #dde3ec;
+    --line-soft: #eef1f6;
+    --ok: #1a7f4b;
+    --ok-soft: #e6f3ec;
+    --wait: #b5852a;
+    --wait-soft: #fbf1da;
+    --pending: #9aa3b2;
+    --sans: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #f3f6fb, transparent),
+      var(--page);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100%;
+    padding: 0 16px 48px;
+  }
+
+  /* disclaimer bar */
+  .disclaimer {
+    width: 100%;
+    background: #241f1a;
+    color: #f0e6d2;
+    font-size: 12.5px;
+    line-height: 1.4;
+    text-align: center;
+    padding: 9px 16px;
+    letter-spacing: 0.01em;
+  }
+  .disclaimer b { color: #ffcf7a; font-weight: 700; }
+
+  .stage {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .caption {
+    max-width: 384px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .caption h1 { font-size: 16px; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+
+  /* phone frame */
+  .phone {
+    width: 384px;
+    max-width: 100%;
+    height: 812px;
+    background: #0b0d12;
+    border-radius: 42px;
+    padding: 10px;
+    box-shadow: 0 30px 60px -20px rgba(20,32,90,0.45), 0 0 0 2px #23262e;
+    position: relative;
+  }
+  .screenwrap {
+    position: relative;
+    height: 100%;
+    background: var(--page);
+    border-radius: 33px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* status bar */
+  .statusbar {
+    height: 34px;
+    flex: 0 0 34px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #12151c;
+    z-index: 5;
+  }
+  .statusbar .ico { display: inline-flex; gap: 5px; align-items: center; }
+  .statusbar svg { display: block; }
+
+  /* app header */
+  .appbar {
+    background: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border-bottom: 1px solid var(--line-soft);
+    z-index: 4;
+  }
+  .appbar .burger {
+    border: none; background: none; padding: 4px; cursor: pointer;
+    color: var(--navy); display: none;
+  }
+  .appbar.has-menu .burger { display: inline-flex; }
+  .seal {
+    width: 34px; height: 34px; flex: 0 0 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, var(--saffron), #d97706);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+  }
+  .seal svg { color: #fff; }
+  .wordmark .t {
+    font-size: 17px; font-weight: 800; color: var(--navy);
+    letter-spacing: 0.02em; line-height: 1;
+  }
+  .wordmark .s {
+    font-size: 9.5px; color: var(--ink-soft); font-weight: 500;
+    letter-spacing: 0.01em; margin-top: 2px;
+  }
+  .maroon-strip { height: 12px; background: var(--maroon); flex: 0 0 12px; }
+
+  /* scroll area */
+  .screen {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+  }
+  .screen.active { display: flex; }
+  .pad { padding: 18px 16px 28px; }
+
+  .home-indicator {
+    height: 22px; flex: 0 0 22px; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .home-indicator span { width: 130px; height: 5px; border-radius: 3px; background: #12151c; opacity: 0.85; }
+
+  /* ===== splash ===== */
+  #splash {
+    background:
+      radial-gradient(120% 80% at 50% 20%, #9a2b2e 0%, #5c0f12 55%, #3c0a0c 100%);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    display: none;
+  }
+  #splash.active { display: flex; }
+  .splash-seal {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #ffd08a, #e08a12);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 6px rgba(255,255,255,0.12), inset 0 0 0 3px rgba(255,255,255,0.5);
+    margin-bottom: 26px;
+  }
+  .splash-seal svg { color: #fff; }
+  #splash .st { font-size: 32px; font-weight: 800; letter-spacing: 0.04em; }
+  #splash .ss { font-size: 12px; opacity: 0.85; margin-top: 8px; letter-spacing: 0.06em; }
+  #splash .tap { position: absolute; bottom: 60px; font-size: 11px; opacity: 0.7; }
+
+  /* ===== tile grid (home) ===== */
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 10px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .08s ease, box-shadow .15s ease;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .tile:active { transform: scale(0.97); }
+  .tile:hover { box-shadow: 0 6px 16px -8px rgba(26,42,108,0.3); }
+  .tile .ti {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--saffron-soft);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--maroon);
+  }
+  .tile .tl { font-size: 12.5px; font-weight: 700; color: var(--navy); line-height: 1.25; }
+
+  .home-hero {
+    background: linear-gradient(120deg, var(--navy), #2c3f8f);
+    color: #fff; border-radius: 14px; padding: 16px 16px;
+    margin-bottom: 16px;
+  }
+  .home-hero h2 { font-size: 15px; font-weight: 700; }
+  .home-hero p { font-size: 12px; opacity: 0.9; margin-top: 4px; line-height: 1.45; }
+
+  /* ===== generic section / back header ===== */
+  .subbar {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; padding: 12px 14px; border-bottom: 1px solid var(--line);
+  }
+  .subbar button {
+    border: none; background: none; cursor: pointer; color: var(--navy);
+    display: inline-flex; padding: 2px;
+  }
+  .subbar h2 { font-size: 15px; font-weight: 700; color: var(--navy); }
+
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 11px; color: var(--label-blue); font-weight: 600; margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--line);
+    border-radius: 9px; font-size: 14px; font-family: inherit; color: var(--ink);
+    background: #fff;
+  }
+  .field input:focus, .field select:focus { outline: 2px solid var(--label-blue); outline-offset: -1px; }
+  .inputwrap { position: relative; }
+  .inputwrap .eye {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    border: none; background: none; cursor: pointer; color: var(--ink-faint);
+  }
+
+  .segment { display: flex; background: #eef1f6; border-radius: 10px; padding: 4px; margin-bottom: 15px; }
+  .segment button {
+    flex: 1; border: none; background: none; cursor: pointer;
+    padding: 9px; border-radius: 7px; font-size: 13px; font-weight: 700; color: var(--ink-soft);
+    font-family: inherit;
+  }
+  .segment button.on { background: var(--navy); color: #fff; box-shadow: 0 2px 6px -2px rgba(26,42,108,0.5); }
+
+  .btn {
+    width: 100%; padding: 13px; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+    background: var(--navy); color: #fff;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+  .link { color: var(--label-blue); font-size: 12.5px; text-decoration: none; font-weight: 600; }
+  .center { text-align: center; }
+  .muted { color: var(--ink-soft); font-size: 12.5px; }
+
+  .demo-note {
+    background: var(--wait-soft); color: #7a5b1e; font-size: 11.5px;
+    border-radius: 8px; padding: 9px 11px; margin-bottom: 16px; line-height: 1.4;
+    border: 1px solid #efdcae;
+  }
+
+  h3.login-h { font-size: 20px; color: var(--navy); font-weight: 800; margin-bottom: 16px; }
+
+  /* dashboard cards */
+  .dash-hero { background: var(--saffron-soft); border: 1px solid #f2ddb8; border-radius: 12px; padding: 15px; margin-bottom: 18px; }
+  .dash-hero h2 { font-size: 14px; color: var(--maroon); font-weight: 800; word-break: break-word; }
+  .dash-hero p { font-size: 12px; color: var(--ink-soft); margin: 6px 0 12px; line-height: 1.45; }
+  .sec-head { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 0 10px; }
+  .sec-head h3 { font-size: 13.5px; color: var(--ink); font-weight: 700; }
+  .appcard { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .appcard .row { display: flex; font-size: 12.5px; margin: 3px 0; }
+  .appcard .row .k { color: var(--label-blue); font-weight: 600; width: 128px; flex: 0 0 128px; }
+  .appcard .row .v { color: var(--ink); font-weight: 600; }
+  .appcard .row .v.name { color: var(--accent-name); }
+  .appcard .title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+
+  /* status timeline */
+  .timeline { margin-top: 6px; }
+  .tl-step { display: grid; grid-template-columns: 26px 1fr; column-gap: 12px; }
+  .tl-col { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 22px; height: 22px; border-radius: 50%; flex: 0 0 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; }
+  .tl-dot.done { background: var(--ok); }
+  .tl-dot.now { background: var(--wait); box-shadow: 0 0 0 4px var(--wait-soft); }
+  .tl-dot.wait { background: #cdd3dd; }
+  .tl-line { flex: 1 1 auto; width: 2px; background: var(--line); margin: 2px 0; }
+  .tl-body { padding-bottom: 16px; }
+  .tl-step:last-child .tl-body { padding-bottom: 0; }
+  .tl-body .n { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .tl-body .d { font-size: 11.5px; color: var(--ink-faint); margin-top: 1px; }
+  .tl-body .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-top: 5px; }
+  .tag.tdone { background: var(--ok-soft); color: var(--ok); }
+  .tag.tnow { background: var(--wait-soft); color: var(--wait); }
+  .tag.twait { background: #eef1f6; color: var(--pending); }
+
+  .list-item { display: flex; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 13px; margin-bottom: 10px; }
+  .list-item .li-ic { width: 36px; height: 36px; border-radius: 9px; background: var(--saffron-soft); color: var(--maroon); display: flex; align-items: center; justify-content: center; flex: 0 0 36px; }
+  .list-item .li-t { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .list-item .li-s { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+
+  .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+  .info-row .k { color: var(--ink-soft); }
+  .info-row .v { color: var(--ink); font-weight: 700; }
+  .big-fee { text-align: center; padding: 20px; background: var(--navy); color: #fff; border-radius: 12px; margin-top: 16px; }
+  .big-fee .amt { font-size: 30px; font-weight: 800; }
+  .big-fee .lb { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+</style>
+
+<div class="disclaimer">
+  <b>Unofficial design study.</b> A recreation of the Passport Seva app for product research. Not affiliated with, or endorsed by, the Ministry of External Affairs or the Government of India. The seal shown is a placeholder, not the State Emblem.
+</div>
+
+<div class="stage">
+  <div class="phone">
+    <div class="screenwrap">
+
+      <!-- status bar -->
+      <div class="statusbar">
+        <span>4:04</span>
+        <span class="ico">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.35"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.3 0 4.4.9 6 2.4l-1.4 1.4A6.6 6.6 0 0 0 8 4.9c-1.7 0-3.3.6-4.6 1.6L2 5.1A9.4 9.4 0 0 1 8 2.2zM8 6.3c1.2 0 2.3.4 3.1 1.2L8 10.8 4.9 7.5A4.5 4.5 0 0 1 8 6.3z"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2.5" stroke="currentColor" stroke-width="1.2"/><rect x="2.5" y="2.5" width="14" height="7" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.6" height="4" rx="0.8" fill="currentColor"/></svg>
+        </span>
+      </div>
+
+      <!-- ===== SPLASH ===== -->
+      <div class="screen active" id="splash">
+        <div class="splash-seal">
+          <svg width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V10M18 21V10M5 10h14M12 3 4.5 8h15z"/><path d="M9 21v-6M15 21v-6"/></svg>
+        </div>
+        <div class="st">Passport Seva</div>
+        <div class="ss">MINISTRY OF EXTERNAL AFFAIRS, GOVERNMENT OF INDIA</div>
+        <div class="tap">tap to continue</div>
+      </div>
+
+      <!-- ===== HOME (logged out) ===== -->
+      <div class="screen" id="home">
+        <div class="appbar">
+          <div class="seal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V10M18 21V10M5 10h14M12 3 4.5 8h15z"/></svg></div>
+          <div class="wordmark"><div class="t">Passport&nbsp;&nbsp;Seva</div><div class="s">Ministry of External Affairs, Government of India</div></div>
+        </div>
+        <div class="maroon-strip"></div>
+        <div class="pad">
+          <div class="tiles">
+            <div class="tile" onclick="go('login')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
+              <div class="tl">Existing User?<br>Login</div>
+            </div>
+            <div class="tile" onclick="go('register')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19a4 4 0 0 0-8 0"/><circle cx="11" cy="9" r="3.2"/><path d="M18 8v6M21 11h-6"/></svg></div>
+              <div class="tl">New User?<br>Register Now</div>
+            </div>
+            <div class="tile" onclick="go('status')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2M11 8v3l2 2"/></svg></div>
+              <div class="tl">Status Tracker</div>
+            </div>
+            <div class="tile" onclick="go('appointment')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/><circle cx="15.5" cy="15" r="2.2"/></svg></div>
+              <div class="tl">Appointment<br>Availability</div>
+            </div>
+            <div class="tile" onclick="go('fee')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M7 9v6M17 9v6"/></svg></div>
+              <div class="tl">Fee Calculator</div>
+            </div>
+            <div class="tile" onclick="go('locate')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+              <div class="tl">Locate Center</div>
+            </div>
+            <div class="tile" onclick="go('annexures')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></div>
+              <div class="tl">Annexures/<br>Affidavits</div>
+            </div>
+            <div class="tile" onclick="go('contact')">
+              <div class="ti"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c0 9 6 15 15 15a1.5 1.5 0 0 0 1.5-1.5v-3l-4-1-2 2a11 11 0 0 1-4.5-4.5l2-2-1-4h-3A1.5 1.5 0 0 0 4 5z"/></svg></div>
+              <div class="tl">Contact Us</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LOGIN ===== -->
+      <div class="screen" id="login">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Login</h2></div>
+        <div class="pad">
+          <div class="demo-note">Demo only. This form is a mockup for a design study and is not connected to anything. Please do not enter real credentials.</div>
+          <h3 class="login-h">Login</h3>
+          <div class="field">
+            <label>User ID*</label>
+            <div class="inputwrap">
+              <input type="text" placeholder="Enter your registered email" value="">
+            </div>
+          </div>
+          <div class="segment">
+            <button class="on" id="segPwd" onclick="segMode('pwd')">Password</button>
+            <button id="segOtp" onclick="segMode('otp')">OTP</button>
+          </div>
+          <div class="field" id="pwdField">
+            <label id="secLabel">Password*</label>
+            <div class="inputwrap">
+              <input type="password" id="secInput" placeholder="Enter password">
+              <button class="eye" aria-label="Show" onclick="return false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div style="text-align:right; margin:-4px 0 16px"><a class="link" href="javascript:void(0)">Forget Password?</a></div>
+          <button class="btn" onclick="go('dashboard')">Login</button>
+          <p class="center muted" style="margin-top:16px">New to Passport Seva? <a class="link" href="javascript:void(0)" onclick="go('register')">Sign Up</a></p>
+        </div>
+      </div>
+
+      <!-- ===== REGISTER ===== -->
+      <div class="screen" id="register">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>New User Registration</h2></div>
+        <div class="pad">
+          <div class="demo-note">Demo only. Mockup registration screen for a design study. Not connected to any system.</div>
+          <div class="field"><label>Given Name*</label><input type="text" placeholder="First / middle name"></div>
+          <div class="field"><label>Surname</label><input type="text" placeholder="Surname"></div>
+          <div class="field"><label>Date of Birth*</label><input type="date"></div>
+          <div class="field"><label>Login ID (Email)*</label><input type="email" placeholder="you@example.com"></div>
+          <div class="field"><label>Create Password*</label><input type="password" placeholder="Create password"></div>
+          <div class="field"><label>Confirm Password*</label><input type="password" placeholder="Re-enter password"></div>
+          <button class="btn" onclick="go('login')">Register</button>
+          <p class="center muted" style="margin-top:14px">Already registered? <a class="link" href="javascript:void(0)" onclick="go('login')">Login</a></p>
+        </div>
+      </div>
+
+      <!-- ===== DASHBOARD (logged in) ===== -->
+      <div class="screen" id="dashboard">
+        <div class="appbar has-menu">
+          <button class="burger" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <div class="seal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V10M18 21V10M5 10h14M12 3 4.5 8h15z"/></svg></div>
+          <div class="wordmark"><div class="t">Passport&nbsp;&nbsp;Seva</div><div class="s">Ministry of External Affairs, Government of India</div></div>
+        </div>
+        <div class="maroon-strip"></div>
+        <div class="pad">
+          <div class="dash-hero">
+            <h2>Welcome Back DEMO@EXAMPLE.COM</h2>
+            <p>Want to apply for a new passport? Start applying for all your passport related services here!</p>
+            <button class="btn" style="width:auto;padding:9px 20px;font-size:13px" onclick="go('fee')">Services</button>
+          </div>
+          <div class="sec-head"><h3>Saved/Draft Applications</h3><a class="link" href="javascript:void(0)">View All</a></div>
+          <div class="appcard">
+            <div class="title">Application for Ordinary</div>
+            <div class="row"><span class="k">Applicant Name</span><span class="v name">DEMO SAINI</span></div>
+            <div class="row"><span class="k">Application Ref. (ARN)</span><span class="v">24-0000026013</span></div>
+            <div style="margin-top:8px"><a class="link" href="javascript:void(0)">Retrieve Partially Saved Form</a></div>
+          </div>
+          <div class="sec-head"><h3>Submitted Applications</h3><a class="link" href="javascript:void(0)" onclick="go('status')">View All</a></div>
+          <div class="appcard">
+            <div class="row"><span class="k">Application Type</span><span class="v">Police Clearance Certificate</span></div>
+            <div class="row"><span class="k">ARN/File No.</span><span class="v">24-0000026185</span></div>
+            <div class="row"><span class="k">Applicant Name</span><span class="v name">DEMO USER</span></div>
+            <div class="row"><span class="k">Submission Date</span><span class="v">11/03/2024</span></div>
+            <div class="row"><span class="k">Payment Status</span><span class="v" style="color:var(--ok)">Paid</span></div>
+            <div style="margin-top:10px"><button class="btn ghost" style="padding:8px" onclick="go('status')">Track Status</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STATUS TRACKER ===== -->
+      <div class="screen" id="status">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Status Tracker</h2></div>
+        <div class="pad">
+          <div class="field"><label>File Number / ARN*</label><input type="text" id="fileNo" placeholder="e.g. 24-0000026185" value="24-0000026185"></div>
+          <div class="field"><label>Date of Birth*</label><input type="date" id="dob" value="1996-07-11"></div>
+          <button class="btn" onclick="showStatus()">Track Status</button>
+
+          <div id="statusResult" style="display:none;margin-top:22px">
+            <div class="appcard" style="margin-bottom:16px">
+              <div class="row"><span class="k">Application Type</span><span class="v">Fresh Passport (Ordinary)</span></div>
+              <div class="row"><span class="k">ARN/File No.</span><span class="v">24-0000026185</span></div>
+              <div class="row"><span class="k">Applicant Name</span><span class="v name">DEMO USER</span></div>
+              <div class="row"><span class="k">Current Stage</span><span class="v" style="color:var(--wait)">Police Verification</span></div>
+            </div>
+            <div class="timeline">
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot done">&#10003;</div><div class="tl-line"></div></div>
+                <div class="tl-body"><div class="n">Application Submitted</div><div class="d">08 Mar 2024</div><span class="tag tdone">Completed</span></div>
+              </div>
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot done">&#10003;</div><div class="tl-line"></div></div>
+                <div class="tl-body"><div class="n">Appointment / ARN Generated</div><div class="d">08 Mar 2024</div><span class="tag tdone">Completed</span></div>
+              </div>
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot done">&#10003;</div><div class="tl-line"></div></div>
+                <div class="tl-body"><div class="n">Passport Seva Kendra Visit</div><div class="d">11 Mar 2024</div><span class="tag tdone">Completed</span></div>
+              </div>
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot now">&#9679;</div><div class="tl-line"></div></div>
+                <div class="tl-body"><div class="n">Police Verification</div><div class="d">Initiated 14 Mar 2024 &middot; with local police station</div><span class="tag tnow">In Progress</span></div>
+              </div>
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot wait"></div><div class="tl-line"></div></div>
+                <div class="tl-body"><div class="n">Passport Printing</div><div class="d">Pending</div><span class="tag twait">Pending</span></div>
+              </div>
+              <div class="tl-step">
+                <div class="tl-col"><div class="tl-dot wait"></div></div>
+                <div class="tl-body"><div class="n">Dispatched</div><div class="d">Pending</div><span class="tag twait">Pending</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== APPOINTMENT ===== -->
+      <div class="screen" id="appointment">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Appointment Availability</h2></div>
+        <div class="pad">
+          <div class="field"><label>Passport Office*</label><select><option>RPO Mumbai</option><option>RPO Delhi</option><option>RPO Bengaluru</option><option>RPO Pune</option></select></div>
+          <div class="field"><label>Appointment Type*</label><select><option>Normal</option><option>Tatkaal</option></select></div>
+          <div class="muted" style="margin:4px 0 14px">Next available slots</div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></div><div><div class="li-t">PSK Lower Parel</div><div class="li-s">Earliest: 02 Sep 2026, 09:15 AM</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></div><div><div class="li-t">PSK Malad</div><div class="li-s">Earliest: 04 Sep 2026, 10:00 AM</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></svg></div><div><div class="li-t">POPSK Thane</div><div class="li-s">Earliest: 05 Sep 2026, 11:30 AM</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== FEE CALCULATOR ===== -->
+      <div class="screen" id="fee">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Fee Calculator</h2></div>
+        <div class="pad">
+          <div class="field"><label>Service Required*</label><select><option>Fresh Passport / Re-issue</option><option>Police Clearance Certificate</option></select></div>
+          <div class="field"><label>Scheme*</label><select onchange="setFee(this.value)"><option value="1500">Normal</option><option value="3500">Tatkaal</option></select></div>
+          <div class="field"><label>Booklet Pages*</label><select><option>36 Pages</option><option>60 Pages</option></select></div>
+          <div class="field"><label>Age of Applicant*</label><select><option>18 years and above</option><option>Below 18 years</option></select></div>
+          <div class="big-fee"><div class="amt" id="feeAmt">&#8377;1,500</div><div class="lb">Applicable Fee (illustrative)</div></div>
+        </div>
+      </div>
+
+      <!-- ===== LOCATE CENTER ===== -->
+      <div class="screen" id="locate">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Locate a Center</h2></div>
+        <div class="pad">
+          <div class="field"><label>Search by State / PIN</label><input type="text" placeholder="e.g. 400013" value="400013"></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><div class="li-t">PSK Lower Parel, Mumbai</div><div class="li-s">Ground Floor, Marathon Futurex &middot; 2.1 km</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><div class="li-t">POPSK Dadar</div><div class="li-s">Head Post Office, Dadar &middot; 3.4 km</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><div class="li-t">PSK Malad</div><div class="li-s">Mindspace, Malad West &middot; 9.8 km</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== ANNEXURES ===== -->
+      <div class="screen" id="annexures">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Annexures / Affidavits</h2></div>
+        <div class="pad">
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div><div><div class="li-t">Annexure A</div><div class="li-s">Declaration of parent for minor's passport</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div><div><div class="li-t">Annexure D</div><div class="li-s">Declaration of applicant (name / details)</div></div></div>
+          <div class="list-item"><div class="li-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div><div><div class="li-t">Annexure F</div><div class="li-s">Identity certificate</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== CONTACT ===== -->
+      <div class="screen" id="contact">
+        <div class="subbar"><button onclick="go('home')" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><h2>Contact Us</h2></div>
+        <div class="pad">
+          <div class="info-row"><span class="k">National Call Centre</span><span class="v">1800-258-1800</span></div>
+          <div class="info-row"><span class="k">Timings</span><span class="v">8 AM - 10 PM</span></div>
+          <div class="info-row"><span class="k">Email</span><span class="v">support (portal)</span></div>
+          <div class="info-row"><span class="k">Grievance</span><span class="v">CPGRAMS</span></div>
+          <p class="muted" style="margin-top:16px; line-height:1.5">Illustrative contact screen for the design study. Details shown are placeholders.</p>
+        </div>
+      </div>
+
+      <div class="home-indicator"><span></span></div>
+    </div>
+  </div>
+
+  <div class="caption">
+    <h1>Passport Seva app &mdash; design-study clone</h1>
+    Tap the tiles to move between screens. Splash &rarr; Home &rarr; Login (mock) &rarr; Dashboard, plus a working Status Tracker demo. Every screen is a static prototype with no backend; the login and forms do nothing. Built for product research on the government-services case study.
+  </div>
+</div>
+
+<script>
+  var screens = ["splash","home","login","register","dashboard","status","appointment","fee","locate","annexures","contact"];
+  function go(id){
+    for (var i=0;i<screens.length;i++){
+      document.getElementById(screens[i]).classList.remove("active");
+    }
+    var el = document.getElementById(id);
+    el.classList.add("active");
+    el.scrollTop = 0;
+  }
+  function segMode(m){
+    var pwd = document.getElementById("segPwd");
+    var otp = document.getElementById("segOtp");
+    var label = document.getElementById("secLabel");
+    var input = document.getElementById("secInput");
+    if (m === "otp"){
+      otp.classList.add("on"); pwd.classList.remove("on");
+      label.textContent = "OTP*"; input.type = "text"; input.placeholder = "Enter OTP sent to your email";
+    } else {
+      pwd.classList.add("on"); otp.classList.remove("on");
+      label.textContent = "Password*"; input.type = "password"; input.placeholder = "Enter password";
+    }
+  }
+  function showStatus(){
+    document.getElementById("statusResult").style.display = "block";
+  }
+  function setFee(v){
+    var n = parseInt(v,10).toLocaleString("en-IN");
+    document.getElementById("feeAmt").innerHTML = "&#8377;" + n;
+  }
+  // splash auto-advance + tap to skip
+  var splashEl = document.getElementById("splash");
+  splashEl.addEventListener("click", function(){ go("home"); });
+  setTimeout(function(){ if (splashEl.classList.contains("active")) go("home"); }, 1800);
+</script>
